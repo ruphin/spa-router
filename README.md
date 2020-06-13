@@ -13,7 +13,7 @@ It supports pages with a `<base>` element. Please don't use the `<base>` element
 
 | Chrome | Safari | Edge | Firefox | IE11 |
 | ------ | ------ | ---- | ------- | ---- |
-| ✔      | ✔      | ✔\*  | ✔       | ✔\*  |
+| ✔      | ✔      | \*✔  | ✔       | \*✔  |
 
 \* Will activate some polyfills when link interception is enabled.
 
