@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<style>
+  html {
+    font-family: sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  a {
+    font-size: 22px;
+    display: block;
+  }
+
+  body {
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #606c71;
+  }
+</style>
+
+<button id="setbase">Set base</button>
+
+<a href="/">home</a>
+<a href="">?????</a>
+<a href="link">link</a>
+<a href="/link">/link</a>
+<a href="/link#hash">/link#hash</a>
+<a href="#hash">#hash</a>
+<a href="/link?query=true">/link?query=true</a>
+<a href="/link?x=шеллы">/link?x=шеллы</a>
+<a href="/excluded">/excluded</a>
+<a href="/excluded?query=true">/excluded?query=true</a>
+<a href="http://www.google.com">http://www.google.com</a>
+<button id="navbuttonrelative">jslink</button>
+<button id="navbutton">/jslink</button>
+<button id="navbuttonexternal">/excluded</button>
+
+<script type="module">
+  import {
+    interceptNavigation,
+    router,
+    currentPath,
+    currentQuery,
+    currentHash,
+    navigate,
+    ROUTE_CHANGED,
+  } from "/spa-router.js";
+
+  console.log(
+    "PATH: ",
+    currentPath(),
+    " QUERY: ",
+    currentQuery(),
+    " HASH: ",
+    currentHash()
+  );
+
+  router.addEventListener(ROUTE_CHANGED, ({ path, query, hash }) => {
+    console.log("PATH: ", path);
+    console.log("QUERY: ", query);
+    console.log("HASH: ", hash);
+  });
+
+  interceptNavigation({ exclude: [/\/excluded/] });
+
+  document
+    .getElementById("navbutton")
+    .addEventListener("click", () => navigate("/jslink"));
+
+  document
+    .getElementById("navbuttonrelative")
+    .addEventListener("click", () => navigate("jslink"));
+
+  document
+    .getElementById("navbuttonexternal")
+    .addEventListener("click", () => navigate("/excluded"));
+
+  document.getElementById("setbase").addEventListener("click", () => {
+    const base = document.createElement("base");
+    base.href = "/base/";
+    document.head.appendChild(base);
+  });
+</script>

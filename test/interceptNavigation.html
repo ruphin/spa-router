@@ -1,0 +1,16 @@
+<meta charset="utf-8">
+
+<script type="module">
+  import { interceptLinks } from '../src/gluon-router.js';
+  window.interceptLinks = interceptLinks;
+
+  document.getElementById('internalLink').addEventListener("click", (event) => {
+    window.clicked = true;
+  })
+  document.getElementById('crossDomainLink').addEventListener("click", (event) => {
+    window.clicked = true;
+  })
+</script>
+
+<a id="crossDomainLink" href="http://example.com"></a>
+<a id="internalLink" href="/some/internal/link"></a>

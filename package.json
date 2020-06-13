@@ -1,0 +1,32 @@
+{
+  "name": "@ruphin/spa-router",
+  "version": "0.0.0",
+  "description": "A minimal spa router",
+  "author": "Goffert van Gool <ruphin@ruphin.net>",
+  "license": "MIT",
+  "module": "spa-router.js",
+  "files": [
+    "spa-router.js",
+    "lib/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ruphin/spa-router.git"
+  },
+  "keywords": [
+    "router",
+    "spa"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "es-dev-server --port 5000",
+    "release": "np",
+    "test": "echo 'no tests today'"
+  },
+  "devDependencies": {
+    "es-dev-server": "^1.55.0",
+    "np": "^6.2.4"
+  }
+}
