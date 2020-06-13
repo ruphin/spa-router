@@ -1,6 +1,6 @@
 # spa-router
 
-[![NPM Latest version](https://img.shields.io/npm/v/@gluon/router.svg)](https://www.npmjs.com/package/@ruphin/spa-router)
+[![NPM Latest version](https://img.shields.io/npm/v/@ruphin/spa-router.svg)](https://www.npmjs.com/package/@ruphin/spa-router)
 [![Code Style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 A minimal javascript spa router. If enabled, it intercepts browser navigation to same-origin locations, and uses pushState to navigate instead. Fires an event when navigation is intercepted. This module implements the bare fundamentals required for frontend navigation. It is not intended to replace a full-featured router, but it contains all the features you need to build a routing solution.
