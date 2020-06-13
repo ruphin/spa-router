@@ -1,6 +1,6 @@
 {
   "name": "@ruphin/spa-router",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A minimal spa router",
   "author": "Goffert van Gool <ruphin@ruphin.net>",
   "license": "MIT",
