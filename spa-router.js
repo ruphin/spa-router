@@ -35,10 +35,8 @@ export const interceptNavigation = ({
   arrayPush.apply(paths.excluded, exclude);
 };
 
-// Use a 'div' element in environments that do not support EventTarget;
-export const router = EventTarget
-  ? new EventTarget()
-  : document.createElement("div");
+// Use a 'div' element as an implementer of EventTarget;
+export const router = document.createElement("div");
 
 export const currentPath = () => decodeURIComponent(location.pathname);
 
@@ -81,9 +79,9 @@ export const navigate = (targetHref) => {
 // Notify observers on the router that the route changed
 const routeChanged = () => {
   const routeChangedEvent = new Event(ROUTE_CHANGED);
-  routeChangedEvent.path = currentPath();
-  routeChangedEvent.query = currentQuery();
-  routeChangedEvent.hash = currentHash();
+  routeChangedEvent.routePath = currentPath();
+  routeChangedEvent.routeQuery = currentQuery();
+  routeChangedEvent.routeHash = currentHash();
   router.dispatchEvent(routeChangedEvent);
 };
 

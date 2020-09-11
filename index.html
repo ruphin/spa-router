@@ -57,11 +57,14 @@
     currentHash()
   );
 
-  router.addEventListener(ROUTE_CHANGED, ({ path, query, hash }) => {
-    console.log("PATH: ", path);
-    console.log("QUERY: ", query);
-    console.log("HASH: ", hash);
-  });
+  router.addEventListener(
+    ROUTE_CHANGED,
+    ({ routePath, routeQuery, routeHash }) => {
+      console.log("PATH: ", routePath);
+      console.log("QUERY: ", routeQuery);
+      console.log("HASH: ", routeHash);
+    }
+  );
 
   interceptNavigation({ exclude: [/\/excluded/] });
 
