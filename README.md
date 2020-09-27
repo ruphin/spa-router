@@ -54,7 +54,7 @@ Fires a ROUTE_CHANGED event whenever browser navigation happens.
 The event contains the path, query, and hash components of the new location.
 
 ```javascript
-import { onRouteChange, ROUTE_CHANGED } from "@ruphin/spa-router";
+import { router, ROUTE_CHANGED } from "@ruphin/spa-router";
 
 router.addEventListener(ROUTE_CHANGED, ({ path, query, hash }) => {
   console.log("PATH: ", path);

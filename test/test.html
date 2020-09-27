@@ -1,0 +1,15 @@
+<meta charset="utf-8" />
+
+<a id="link" href="#test">hashLink</a>
+
+<script type="module">
+  import spaRouter from "../spa-router.js";
+  Object.assign(window, spaRouter);
+  // window.router = router;
+  // window.ROUTE_CHANGED = ROUTE_CHANGED;
+  // window.interceptNavigation = interceptNavigation;
+  // window.currentPath = currentPath;
+  // window.currentHash = currentHash;
+  // window.currentQuery = currentQuery;
+  document.getElementById("link").classList.add("ready");
+</script>

@@ -6,7 +6,7 @@ const paths = { included: [], excluded: [] };
 
 // Shorthand accessors
 const arrayPush = Array.prototype.push;
-const { EventTarget, location, history, decodeURIComponent } = window;
+const { location, history, decodeURIComponent } = window;
 
 // Defaults
 const DEFAULT_INCLUDE = [/.?/];

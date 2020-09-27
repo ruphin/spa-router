@@ -23,10 +23,13 @@
   "scripts": {
     "dev": "es-dev-server --port 5000",
     "release": "np",
-    "test": "echo 'no tests today'"
+    "test": "mocha ./test/test.js"
   },
   "devDependencies": {
-    "es-dev-server": "^1.55.0",
-    "np": "^6.2.4"
+    "chai": "^4.2.0",
+    "es-dev-server": "^1.57.4",
+    "mocha": "^8.1.3",
+    "np": "^6.5.0",
+    "playwright": "^1.4.0"
   }
 }
