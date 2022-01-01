@@ -5,17 +5,15 @@
 
 A minimal javascript spa router. If enabled, it intercepts browser navigation to same-origin locations, and uses pushState to navigate instead. Fires an event when navigation is intercepted. This module implements the bare fundamentals required for frontend navigation. It is not intended to replace a full-featured router, but it contains all the features you need to build a routing solution.
 
-Includes a tiny polyfill for `Event()` and `Event.prototype.composedPath()` on IE11 and Edge.
-
 It supports pages with a `<base>` element. Please don't use the `<base>` element.
 
 ## Compatibility
 
-| Chrome | Safari | Edge | Firefox | IE11 |
-| ------ | ------ | ---- | ------- | ---- |
-| ✔      | ✔      | \*✔  | ✔       | \*✔  |
+| Chrome | Safari | Edge | Firefox | Edge Legacy | IE11 |
+| ------ | ------ | ---- | ------- | ----------- | ---- |
+| ✓      | ✓      | ✓    | ✓       | ✗ \*        | ✗ \* |
 
-\* Will activate some polyfills when link interception is enabled.
+\* Requires transpiling to ES5 and polyfills for `URL()`, `Event()`, and `Event.prototype.composedPath()`
 
 ## Installation
 
@@ -34,7 +32,7 @@ import {
 // Enable navigation interception to paths that match the 'include' list and do not match the 'exclude' list
 interceptNavigation({
   include: [/^\/my\//, /^\/application\//, /^\/paths\//],
-  exclude: [/^\/paths\/that\/should\/reload\//],
+  exclude: [/^\/path\/that\/should\/reload\//],
 });
 
 // Respond to route changes
@@ -63,6 +61,14 @@ router.addEventListener(ROUTE_CHANGED, ({ path, query, hash }) => {
 });
 ```
 
+The router also exposes a getter for the current path, query, and hash
+
+```javascript
+import { router } from "@ruphin/spa-router";
+
+const { path, query, hash } = router;
+```
+
 ### interceptNavigation
 
 Enables intercepting navigation. After calling this, the browser will no longer reload when the user navigates to a same-domain link. Instead, the new url will be added to the browser navigation history, and a route change event is fired.
@@ -85,7 +91,7 @@ import { interceptNavigation } from "@ruphin/spa-router";
 
 // Intercept any navigation to paths that begin with '/my/', '/application/', or '/paths/'
 // But NOT navigation to paths that begin with '/paths/that/should/reload/'
-interceptLinks({
+interceptNavigation({
   include: [/^\/my\//, /^\/application\//, /^\/paths\//],
   exclude: [/^\/paths\/that\/should\/reload\//],
 });
@@ -106,7 +112,7 @@ navigate("#anchor");
 
 ### currentPath
 
-Returns the active path
+Returns the active path (returns the same value as router.path)
 
 ```javascript
 import { currentPath } from "@ruphin/spa-router";
@@ -117,7 +123,7 @@ currentPath() === "/path";
 
 ### currentQuery
 
-Returns the active query component
+Returns the active query component (returns the same value as router.query)
 
 ```javascript
 import { currentQuery } from "@ruphin/spa-router";
@@ -128,7 +134,7 @@ currentQuery() === "query=value";
 
 ### currentHash
 
-Returns the active hash
+Returns the active hash (returns the same value as router.hash)
 
 ```javascript
 import { currentHash } from "@ruphin/spa-router";

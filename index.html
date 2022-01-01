@@ -21,18 +21,19 @@
 </style>
 
 <button id="setbase">Set base</button>
+<button id="removebase">Remove base</button>
 
-<a href="/">home</a>
-<a href="">?????</a>
-<a href="link">link</a>
-<a href="/link">/link</a>
-<a href="/link#hash">/link#hash</a>
-<a href="#hash">#hash</a>
-<a href="/link?query=true">/link?query=true</a>
-<a href="/link?x=шеллы">/link?x=шеллы</a>
-<a href="/excluded">/excluded</a>
-<a href="/excluded?query=true">/excluded?query=true</a>
-<a href="http://www.google.com">http://www.google.com</a>
+<a href="/">"/"</a>
+<a href="">""</a>
+<a href="link">"link"</a>
+<a href="/link">"/link"</a>
+<a href="/link#hash">"/link#hash"</a>
+<a href="#hash">"#hash"</a>
+<a href="/link?query=true">"/link?query=true"</a>
+<a href="/link?x=шеллы">"/link?x=шеллы"</a>
+<a href="/excluded">"/excluded"</a>
+<a href="/excluded?query=true">"/excluded?query=true"</a>
+<a href="http://www.google.com">"http://www.google.com"</a>
 <button id="navbuttonrelative">jslink</button>
 <button id="navbutton">/jslink</button>
 <button id="navbuttonexternal">/excluded</button>
@@ -84,5 +85,9 @@
     const base = document.createElement("base");
     base.href = "/base/";
     document.head.appendChild(base);
+  });
+
+  document.getElementById("removebase").addEventListener("click", () => {
+    document.head.removeChild(document.querySelector("base"));
   });
 </script>

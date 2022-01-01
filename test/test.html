@@ -1,15 +1,35 @@
 <meta charset="utf-8" />
 
-<a id="link" href="#test">hashLink</a>
+<a href="#test">hashLink</a>
+<a href="test.html?thing=value">queryLink</a>
+<a id="crossDomainLink" href="http://example.com">crossDomainLink</a>
+<a id="internalLink" href="/some/internal/link">internalLink</a>
 
 <script type="module">
-  import spaRouter from "../spa-router.js";
-  Object.assign(window, spaRouter);
-  // window.router = router;
-  // window.ROUTE_CHANGED = ROUTE_CHANGED;
-  // window.interceptNavigation = interceptNavigation;
-  // window.currentPath = currentPath;
-  // window.currentHash = currentHash;
-  // window.currentQuery = currentQuery;
-  document.getElementById("link").classList.add("ready");
+  import {
+    ROUTE_CHANGED,
+    router,
+    interceptNavigation,
+    navigate,
+    currentPath,
+    currentQuery,
+    currentHash,
+  } from "../spa-router.js";
+  window.ROUTE_CHANGED = ROUTE_CHANGED;
+  window.router = router;
+  window.interceptNavigation = interceptNavigation;
+  window.navigate = navigate;
+  window.currentPath = currentPath;
+  window.currentQuery = currentQuery;
+  window.currentHash = currentHash;
+
+  document.getElementById("internalLink").addEventListener("click", (event) => {
+    window.clicked = true;
+  });
+
+  document
+    .getElementById("crossDomainLink")
+    .addEventListener("click", (event) => {
+      window.clicked = true;
+    });
 </script>

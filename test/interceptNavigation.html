@@ -1,16 +1,19 @@
-<meta charset="utf-8">
+<meta charset="utf-8" />
+
+<a id="crossDomainLink" href="http://example.com">crossDomainLink</a>
+<a id="internalLink" href="/some/internal/link">internalLink</a>
 
 <script type="module">
-  import { interceptLinks } from '../src/gluon-router.js';
-  window.interceptLinks = interceptLinks;
+  import { interceptNavigation } from "../spa-router.js";
+  window.interceptNavigation = interceptNavigation;
 
-  document.getElementById('internalLink').addEventListener("click", (event) => {
+  document.getElementById("internalLink").addEventListener("click", (event) => {
     window.clicked = true;
-  })
-  document.getElementById('crossDomainLink').addEventListener("click", (event) => {
-    window.clicked = true;
-  })
+  });
+
+  document
+    .getElementById("crossDomainLink")
+    .addEventListener("click", (event) => {
+      window.clicked = true;
+    });
 </script>
-
-<a id="crossDomainLink" href="http://example.com"></a>
-<a id="internalLink" href="/some/internal/link"></a>

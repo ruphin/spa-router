@@ -1,7 +1,13 @@
-import "./lib/event-polyfill.js";
-import { URLPonyfill } from "./lib/url-ponyfill.js";
-
 let interceptingNavigation = false;
+let _currentPath, _currentQuery, _currentHash;
+
+class RouteChangedEvent extends Event {
+  constructor({ routePath, routeQuery, routeHash }) {
+    super(ROUTE_CHANGED);
+    Object.assign(this, { routePath, routeQuery, routeHash });
+  }
+}
+
 const paths = { included: [], excluded: [] };
 
 // Shorthand accessors
@@ -12,7 +18,7 @@ const { location, history, decodeURIComponent } = window;
 const DEFAULT_INCLUDE = [/.?/];
 const DEFAULT_EXCLUDE = [];
 
-// Events are case sensitive in the DOM3 event specification, supported in IE11
+// Events are case sensitive in the DOM3 event specification
 export const ROUTE_CHANGED = "routeChanged";
 
 // Intercept browser navigation
@@ -23,7 +29,7 @@ export const interceptNavigation = ({
   if (!interceptingNavigation) {
     interceptingNavigation = true;
 
-    // Register the global click handler to incercept clicks on anchor elements
+    // Register a global click handler to incercept clicks on anchor elements
     document.body.addEventListener("click", globalClickHandler);
 
     // Observe browser navigation
@@ -31,18 +37,38 @@ export const interceptNavigation = ({
     window.addEventListener("popstate", routeChanged);
   }
 
-  arrayPush.apply(paths.included, include);
-  arrayPush.apply(paths.excluded, exclude);
+  const addNewRegexes = (newRegexes, regexes) => {
+    arrayPush.apply(
+      regexes,
+      newRegexes.filter((newRegex) => {
+        const source = newRegex.source;
+        return !regexes.some((regex) => regex.source === source);
+      })
+    );
+  };
+
+  addNewRegexes(include, paths.included);
+  addNewRegexes(exclude, paths.excluded);
 };
 
-// Use a 'div' element as an implementer of EventTarget;
-export const router = document.createElement("div");
+export const router = new EventTarget();
 
-export const currentPath = () => decodeURIComponent(location.pathname);
+export const currentPath = () => _currentPath;
+export const currentQuery = () => _currentQuery;
+export const currentHash = () => _currentHash;
 
-export const currentQuery = () => decodeURIComponent(location.search.slice(1));
+Object.defineProperties(router, {
+  path: { get: currentPath },
+  query: { get: currentQuery },
+  hash: { get: currentHash },
+});
 
-export const currentHash = () => decodeURIComponent(location.hash.slice(1));
+const setPathQueryHash = () => {
+  _currentPath = decodeURIComponent(location.pathname);
+  _currentQuery = decodeURIComponent(location.search.slice(1));
+  _currentHash = decodeURIComponent(location.hash.slice(1));
+};
+setPathQueryHash();
 
 // Navigate to any href
 export const navigate = (targetHref) => {
@@ -51,7 +77,7 @@ export const navigate = (targetHref) => {
     return;
   }
 
-  const { href, origin, pathname } = URLPonyfill(targetHref);
+  const { href, origin, pathname } = new URL(targetHref, document.baseURI);
 
   // If we are already at this href, do nothing
   if (href === location.href) {
@@ -73,15 +99,18 @@ export const navigate = (targetHref) => {
   } else {
     // Navigate normally
     location.href = href;
+    setPathQueryHash();
   }
 };
 
 // Notify observers on the router that the route changed
 const routeChanged = () => {
-  const routeChangedEvent = new Event(ROUTE_CHANGED);
-  routeChangedEvent.routePath = currentPath();
-  routeChangedEvent.routeQuery = currentQuery();
-  routeChangedEvent.routeHash = currentHash();
+  setPathQueryHash();
+  const routeChangedEvent = new RouteChangedEvent({
+    routePath: router.path,
+    routeQuery: router.query,
+    routeHash: router.hash,
+  });
   router.dispatchEvent(routeChangedEvent);
 };
 
