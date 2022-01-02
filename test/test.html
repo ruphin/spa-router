@@ -1,7 +1,7 @@
 <meta charset="utf-8" />
 
-<a href="#test">hashLink</a>
-<a href="test.html?thing=value">queryLink</a>
+<a id="hashLink" href="#test">hashLink</a>
+<a id="queryLink" href="test.html?thing=value">queryLink</a>
 <a id="crossDomainLink" href="http://example.com">crossDomainLink</a>
 <a id="internalLink" href="/some/internal/link">internalLink</a>
 
@@ -15,21 +15,19 @@
     currentQuery,
     currentHash,
   } from "../spa-router.js";
-  window.ROUTE_CHANGED = ROUTE_CHANGED;
-  window.router = router;
-  window.interceptNavigation = interceptNavigation;
-  window.navigate = navigate;
-  window.currentPath = currentPath;
-  window.currentQuery = currentQuery;
-  window.currentHash = currentHash;
-
-  document.getElementById("internalLink").addEventListener("click", (event) => {
-    window.clicked = true;
+  Object.assign(window, {
+    ROUTE_CHANGED,
+    router,
+    interceptNavigation,
+    navigate,
+    currentPath,
+    currentQuery,
+    currentHash,
   });
 
-  document
-    .getElementById("crossDomainLink")
-    .addEventListener("click", (event) => {
+  [...document.querySelectorAll("a")].forEach((link) => {
+    link.addEventListener("click", (event) => {
       window.clicked = true;
     });
+  });
 </script>

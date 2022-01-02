@@ -25,32 +25,51 @@ describe("spa-router", async () => {
   describe(`router`, () => {
     it("should do nothing if navigation is not intercepted", async () => {
       await page.evaluate(() => {
-        window.routeChanged = false;
         window.router.addEventListener(window.ROUTE_CHANGED, () => {
           window.routeChanged = true;
         });
       });
 
-      await page.click("text=hashLink");
+      await page.click("text=queryLink");
 
       const routeChanged = await page.evaluate(() => {
         return window.routeChanged;
       });
 
-      expect(routeChanged).to.be.false;
-      expect(page.url()).to.equal("http://localhost:5000/test/test.html#test");
+      expect(routeChanged).to.be.undefined;
+      expect(page.url()).to.equal(
+        "http://localhost:5000/test/test.html?thing=value"
+      );
     });
 
-    it("should fire callback if navigation is intercepted", async () => {
+    it("should fire event if navigate is called", async () => {
       await page.evaluate(() => {
         window.interceptNavigation();
-        window.routeChanged = false;
+        window.router.addEventListener(window.ROUTE_CHANGED, () => {
+          window.routeChanged = true;
+        });
+        window.navigate("/test/test.html?thing=value");
+      });
+
+      const routeChanged = await page.evaluate(() => {
+        return window.routeChanged;
+      });
+
+      expect(routeChanged).to.be.true;
+      expect(page.url()).to.equal(
+        "http://localhost:5000/test/test.html?thing=value"
+      );
+    });
+
+    it("should fire event if a link is clicked", async () => {
+      await page.evaluate(() => {
+        window.interceptNavigation();
         window.router.addEventListener(window.ROUTE_CHANGED, () => {
           window.routeChanged = true;
         });
       });
 
-      await page.click("text=hashLink");
+      await page.click("text=queryLink");
 
       const routeChanged = await page.evaluate(() => {
         return window.routeChanged;
@@ -59,38 +78,40 @@ describe("spa-router", async () => {
       expect(routeChanged).to.be.true;
     });
 
-    it("should fire callback upon location-changed", async () => {
+    it("should not fire event on pushstate", async () => {
       await page.evaluate(() => {
         window.interceptNavigation();
-        window.routeChanged = false;
         window.router.addEventListener(window.ROUTE_CHANGED, () => {
           window.routeChanged = true;
         });
-        window.dispatchEvent(new Event("location-changed"));
-      });
-
-      await page.click("text=hashLink");
-
-      const routeChanged = await page.evaluate(() => {
-        return window.routeChanged;
-      });
-
-      expect(routeChanged).to.be.true;
-    });
-
-    it("should fire callback upon popstate", async () => {
-      await page.evaluate(() => {
-        window.interceptNavigation();
-        window.routeChanged = false;
-        window.router.addEventListener(window.ROUTE_CHANGED, () => {
-          window.routeChanged = true;
-        });
-        window.history.pushState({}, "test", "#test");
+        window.history.pushState({}, "", "/test/test.html?thing=value");
       });
 
       expect(await page.url()).to.equal(
-        "http://localhost:5000/test/test.html#test"
+        "http://localhost:5000/test/test.html?thing=value"
       );
+
+      const routeChanged = await page.evaluate(() => {
+        return window.routeChanged;
+      });
+      expect(routeChanged).to.be.undefined;
+    });
+
+    it("should fire event on popstate", async () => {
+      await page.evaluate(() => {
+        window.interceptNavigation();
+        window.history.pushState({}, "", "/test/test.html?thing=value");
+      });
+
+      expect(await page.url()).to.equal(
+        "http://localhost:5000/test/test.html?thing=value"
+      );
+
+      await page.evaluate(() => {
+        window.router.addEventListener(window.ROUTE_CHANGED, () => {
+          window.routeChanged = true;
+        });
+      });
 
       await page.goBack();
       const routeChanged = await page.evaluate(() => {

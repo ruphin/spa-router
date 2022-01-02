@@ -36,9 +36,12 @@ interceptNavigation({
 });
 
 // Respond to route changes
-router.addEventListener(ROUTE_CHANGED, ({ path, query, hash }) => {
-  // ...
-});
+router.addEventListener(
+  ROUTE_CHANGED,
+  ({ routePath, routeQuery, routeHash }) => {
+    // ...
+  }
+);
 
 // Navigate to a route programatically
 navigate("/somewhere");
@@ -54,11 +57,14 @@ The event contains the path, query, and hash components of the new location.
 ```javascript
 import { router, ROUTE_CHANGED } from "@ruphin/spa-router";
 
-router.addEventListener(ROUTE_CHANGED, ({ path, query, hash }) => {
-  console.log("PATH: ", path);
-  console.log("QUERY: ", query);
-  console.log("HASH: ", hash);
-});
+router.addEventListener(
+  ROUTE_CHANGED,
+  ({ routePath, routeQuery, routeHash }) => {
+    console.log("PATH: ", routePath);
+    console.log("QUERY: ", routeQuery);
+    console.log("HASH: ", routeHash);
+  }
+);
 ```
 
 The router also exposes a getter for the current path, query, and hash
@@ -69,9 +75,20 @@ import { router } from "@ruphin/spa-router";
 const { path, query, hash } = router;
 ```
 
-### interceptNavigation
+### interceptNavigation()
 
 Enables intercepting navigation. After calling this, the browser will no longer reload when the user navigates to a same-domain link. Instead, the new url will be added to the browser navigation history, and a route change event is fired.
+
+Navigation is intercepted when the user navigates by:
+
+- Clicking a link (`<a href="/some/url">`)
+- Changing the browser history by clicking forward or back
+- Calling the `navigate()` function
+
+The following methods of navigating are _not_ intercepted:
+
+- Assigning to `window.location`
+- Manipulating `window.history` in javascript
 
 This function has has an optional argument with two options:
 
@@ -97,7 +114,7 @@ interceptNavigation({
 });
 ```
 
-### navigate
+### navigate()
 
 Updates the browser location as if the user clicked on a link. Uses the same baseURI as the current document, so it behaves exactly like a regular link.
 
@@ -110,7 +127,7 @@ navigate("https://github.com/ruphin");
 navigate("#anchor");
 ```
 
-### currentPath
+### currentPath()
 
 Returns the active path (returns the same value as router.path)
 
@@ -121,7 +138,7 @@ import { currentPath } from "@ruphin/spa-router";
 currentPath() === "/path";
 ```
 
-### currentQuery
+### currentQuery()
 
 Returns the active query component (returns the same value as router.query)
 
@@ -132,7 +149,7 @@ import { currentQuery } from "@ruphin/spa-router";
 currentQuery() === "query=value";
 ```
 
-### currentHash
+### currentHash()
 
 Returns the active hash (returns the same value as router.hash)
 

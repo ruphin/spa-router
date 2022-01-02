@@ -49,6 +49,16 @@
     ROUTE_CHANGED,
   } from "/spa-router.js";
 
+  Object.assign(window, {
+    ROUTE_CHANGED,
+    router,
+    interceptNavigation,
+    navigate,
+    currentPath,
+    currentQuery,
+    currentHash,
+  });
+
   console.log(
     "PATH: ",
     currentPath(),
