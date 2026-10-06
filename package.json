@@ -11,28 +11,28 @@
     "url": "https://github.com/ruphin/spa-router.git"
   },
   "author": "Goffert van Gool <ruphin@ruphin.net>",
-  "main": "spa-router.js",
-  "module": "spa-router.js",
+  "main": "dist/spa-router.js",
+  "module": "dist/spa-router.js",
   "type": "module",
-  "exports": "./spa-router.js",
+  "exports": "./dist/spa-router.js",
   "files": [
-    "spa-router.js"
+    "dist"
   ],
   "keywords": [
     "router",
     "spa"
   ],
   "scripts": {
-    "dev": "wds --port 5000 --app-index index.html",
-    "release": "np",
-    "test": "mocha ./test/test.cjs"
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build",
+    "release": "np"
   },
   "devDependencies": {
-    "@web/dev-server": "^0.1.29",
-    "chai": "^4.3.4",
-    "http-server": "^14.0.0",
-    "mocha": "^9.1.3",
     "np": "^7.6.0",
-    "playwright": "^1.17.1"
+    "playwright": "^1.63.0",
+    "vite": "^8.3.3",
+    "vitest": "^5.0.3"
   }
 }

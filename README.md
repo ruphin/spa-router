@@ -159,3 +159,14 @@ import { currentHash } from "@ruphin/spa-router";
 // If the current url is https://example.com/path?query=value#hash
 currentHash() === "hash";
 ```
+
+## Development
+
+```sh
+npm install
+npx playwright install chromium # once, for the browser tests
+npm run dev    # Vite dev server with the demo page (index.html)
+npm run build  # build the library into dist/
+npm test       # run the Vitest + Playwright test suite
+npm run release
+```

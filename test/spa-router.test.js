@@ -1,23 +1,31 @@
-const { expect } = require("chai");
+import { describe, it, beforeAll, beforeEach, afterAll, expect } from "vitest";
+import { chromium } from "playwright";
+import { createServer } from "vite";
 
-const { chromium } = require("playwright");
-
-const { HTTPServer } = require("http-server");
+// These tests exercise real page navigation (reloads, history, cross-origin
+// links), so they drive a real browser with Playwright against a Vite server.
+const PORT = 20000 + Math.floor(Math.random() * 20000);
+const ORIGIN = `http://localhost:${PORT}`;
 
 let browser;
 let page;
 let server;
 
-describe("spa-router", async () => {
-  before(async () => {
-    server = new HTTPServer({ root: "./" });
-    server.listen(5000);
+describe("spa-router", () => {
+  beforeAll(async () => {
+    server = await createServer({
+      configFile: false,
+      root: process.cwd(),
+      logLevel: "silent",
+      server: { port: PORT, strictPort: true, hmr: false },
+    });
+    await server.listen();
     browser = await chromium.launch();
     page = await browser.newPage();
   });
 
   beforeEach(async () => {
-    await page.goto("http://localhost:5000/test/test.html", {
+    await page.goto(`${ORIGIN}/test/test.html`, {
       waitUntil: "networkidle",
     });
   });
@@ -36,10 +44,8 @@ describe("spa-router", async () => {
         return window.routeChanged;
       });
 
-      expect(routeChanged).to.be.undefined;
-      expect(page.url()).to.equal(
-        "http://localhost:5000/test/test.html?thing=value"
-      );
+      expect(routeChanged).toBeUndefined();
+      expect(page.url()).toBe(`${ORIGIN}/test/test.html?thing=value`);
     });
 
     it("should fire event if navigate is called", async () => {
@@ -55,10 +61,8 @@ describe("spa-router", async () => {
         return window.routeChanged;
       });
 
-      expect(routeChanged).to.be.true;
-      expect(page.url()).to.equal(
-        "http://localhost:5000/test/test.html?thing=value"
-      );
+      expect(routeChanged).toBe(true);
+      expect(page.url()).toBe(`${ORIGIN}/test/test.html?thing=value`);
     });
 
     it("should fire event if a link is clicked", async () => {
@@ -75,7 +79,7 @@ describe("spa-router", async () => {
         return window.routeChanged;
       });
 
-      expect(routeChanged).to.be.true;
+      expect(routeChanged).toBe(true);
     });
 
     it("should not fire event on pushstate", async () => {
@@ -87,14 +91,12 @@ describe("spa-router", async () => {
         window.history.pushState({}, "", "/test/test.html?thing=value");
       });
 
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/test/test.html?thing=value"
-      );
+      expect(await page.url()).toBe(`${ORIGIN}/test/test.html?thing=value`);
 
       const routeChanged = await page.evaluate(() => {
         return window.routeChanged;
       });
-      expect(routeChanged).to.be.undefined;
+      expect(routeChanged).toBeUndefined();
     });
 
     it("should fire event on popstate", async () => {
@@ -103,9 +105,7 @@ describe("spa-router", async () => {
         window.history.pushState({}, "", "/test/test.html?thing=value");
       });
 
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/test/test.html?thing=value"
-      );
+      expect(await page.url()).toBe(`${ORIGIN}/test/test.html?thing=value`);
 
       await page.evaluate(() => {
         window.router.addEventListener(window.ROUTE_CHANGED, () => {
@@ -118,8 +118,8 @@ describe("spa-router", async () => {
         return window.routeChanged;
       });
 
-      expect(await page.url()).to.equal("http://localhost:5000/test/test.html");
-      expect(routeChanged).to.be.true;
+      expect(await page.url()).toBe(`${ORIGIN}/test/test.html`);
+      expect(routeChanged).toBe(true);
     });
 
     describe(`router.path`, () => {
@@ -127,8 +127,8 @@ describe("spa-router", async () => {
         //
         let path = await page.evaluate(() => window.router.path);
         let currentPath = await page.evaluate(() => window.currentPath());
-        expect(path).to.not.equal("");
-        expect(path).to.equal(currentPath);
+        expect(path).not.toBe("");
+        expect(path).toBe(currentPath);
       });
     });
 
@@ -140,8 +140,8 @@ describe("spa-router", async () => {
         await page.click("text=queryLink");
         let query = await page.evaluate(() => window.router.query);
         let currentQuery = await page.evaluate(() => window.currentQuery());
-        expect(query).to.not.equal("");
-        expect(query).to.equal(currentQuery);
+        expect(query).not.toBe("");
+        expect(query).toBe(currentQuery);
       });
     });
 
@@ -153,8 +153,8 @@ describe("spa-router", async () => {
         await page.click("text=hashLink");
         let hash = await page.evaluate(() => window.router.hash);
         let currentHash = await page.evaluate(() => window.currentHash());
-        expect(hash).to.not.equal("");
-        expect(hash).to.equal(currentHash);
+        expect(hash).not.toBe("");
+        expect(hash).toBe(currentHash);
       });
     });
   });
@@ -162,10 +162,8 @@ describe("spa-router", async () => {
   describe(`interceptNavigation`, () => {
     it("should not intercept navigation before being activated", async () => {
       await page.click("text=internalLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.undefined;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.clicked)).toBeUndefined();
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
 
     it("should not intercept cross domain links", async () => {
@@ -174,8 +172,8 @@ describe("spa-router", async () => {
       });
 
       await page.click("text=crossDomainLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.undefined;
-      expect(await page.url()).to.equal("http://example.com/");
+      expect(await page.evaluate(() => window.clicked)).toBeUndefined();
+      expect(await page.url()).toBe("http://example.com/");
     });
 
     it("should intercept all same domain links by default", async () => {
@@ -183,10 +181,8 @@ describe("spa-router", async () => {
         window.interceptNavigation();
       });
       await page.click("text=internalLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.true;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.clicked)).toBe(true);
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
 
     it("should not intercept links that are exluded", async () => {
@@ -194,10 +190,8 @@ describe("spa-router", async () => {
         window.interceptNavigation({ exclude: [/\/internal\/link/] });
       });
       await page.click("text=internalLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.undefined;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.clicked)).toBeUndefined();
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
 
     it("should not intercept links that are not included", async () => {
@@ -205,10 +199,8 @@ describe("spa-router", async () => {
         window.interceptNavigation({ include: [/\/some\/other\/link/] });
       });
       await page.click("text=internalLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.undefined;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.clicked)).toBeUndefined();
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
 
     it("should not intercept links that are included but also excluded", async () => {
@@ -219,10 +211,8 @@ describe("spa-router", async () => {
         });
       });
       await page.click("text=internalLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.undefined;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.clicked)).toBeUndefined();
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
 
     it("should intercept links that are included", async () => {
@@ -230,10 +220,8 @@ describe("spa-router", async () => {
         window.interceptNavigation({ include: [/\/link/] });
       });
       await page.click("text=internalLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.true;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.clicked)).toBe(true);
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
 
     it("should intercept links that are included and not excluded", async () => {
@@ -244,27 +232,25 @@ describe("spa-router", async () => {
         });
       });
       await page.click("text=internalLink");
-      expect(await page.evaluate(() => window.clicked)).to.be.true;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.clicked)).toBe(true);
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
   });
 
   describe(`navigate`, () => {
     it("should navigate to external urls", async () => {
       await page.evaluate(() => window.navigate("http://example.com/"));
-      expect(await page.url()).to.equal("http://example.com/");
+      await page.waitForURL("http://example.com/");
+      expect(await page.url()).toBe("http://example.com/");
     });
     it("should reload when navigating to local urls if navigation is not intercepted", async () => {
       await page.evaluate(() => {
         window.samePage = true;
         window.navigate("/some/internal/link");
       });
-      expect(await page.evaluate(() => window.samePage)).to.be.undefined;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      await page.waitForURL(`${ORIGIN}/some/internal/link`);
+      expect(await page.evaluate(() => window.samePage)).toBeUndefined();
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
     it("should not reload when navigating to local urls if navigation is intercepted", async () => {
       await page.evaluate(() => {
@@ -272,24 +258,22 @@ describe("spa-router", async () => {
         window.samePage = true;
         window.navigate("/some/internal/link");
       });
-      expect(await page.evaluate(() => window.samePage)).to.be.true;
-      expect(await page.url()).to.equal(
-        "http://localhost:5000/some/internal/link"
-      );
+      expect(await page.evaluate(() => window.samePage)).toBe(true);
+      expect(await page.url()).toBe(`${ORIGIN}/some/internal/link`);
     });
   });
 
   describe(`currentPath`, () => {
     it("should equal the path of the current location", async () => {
       let path = await page.evaluate(() => window.currentPath());
-      expect(path).to.equal("/test/test.html");
+      expect(path).toBe("/test/test.html");
     });
   });
 
   describe(`currentQuery`, () => {
     it("should be empty when there is no query parameter", async () => {
       let query = await page.evaluate(() => window.currentQuery());
-      expect(query).to.equal("");
+      expect(query).toBe("");
     });
     it("should equal the query of the current location", async () => {
       await page.evaluate(() => {
@@ -297,14 +281,14 @@ describe("spa-router", async () => {
       });
       await page.click("text=queryLink");
       let query = await page.evaluate(() => window.currentQuery());
-      expect(query).to.equal("thing=value");
+      expect(query).toBe("thing=value");
     });
   });
 
   describe(`currentHash`, () => {
     it("should be empty when there is no hash", async () => {
       let hash = await page.evaluate(() => window.currentHash());
-      expect(hash).to.equal("");
+      expect(hash).toBe("");
     });
     it("should equal the hash of the current location", async () => {
       await page.evaluate(() => {
@@ -312,12 +296,12 @@ describe("spa-router", async () => {
       });
       await page.click("text=hashLink");
       let hash = await page.evaluate(() => window.currentHash());
-      expect(hash).to.equal("test");
+      expect(hash).toBe("test");
     });
   });
 
-  after(async () => {
-    server.close();
-    browser.close();
+  afterAll(async () => {
+    await browser?.close();
+    await server?.close();
   });
 });
